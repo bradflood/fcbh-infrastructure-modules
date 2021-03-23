@@ -1,25 +1,3 @@
-# output "certificate_id" {
-#   value       = module.acm_request_certificate.id
-#   description = "The ID of the certificate"
-# }
-
-# output "certificate_arn" {
-#   value       = module.acm_request_certificate.arn
-#   description = "The ARN of the certificate"
-# }
-
-# output "certificate_domain_validation_options" {
-#   value       = module.acm_request_certificate.domain_validation_options
-#   description = "CNAME records that are added to the DNS zone to complete certificate validation"
-# }
-
-
-
-# output "launch_configuration_security_group" {
-#   value       = data.aws_security_group.default.id
-#   description = "Launch Configuration Security Group ID"
-# }
-
 # beanstalk outputs
 output "elastic_beanstalk_application_name" {
   value       = module.elastic_beanstalk_application.elastic_beanstalk_application_name
@@ -87,14 +65,4 @@ output "elastic_beanstalk_environment_triggers" {
 
 output "zone_id" {
   value = var.dns_zone_id
-}
-
-output "beanstalk_health_alarm_sns_arn" {
-  description = "SNS ARN to which beanstalk health alarms will be sent"
-  value = module.sns.arn
-}
-
-output "beanstalk_health_alarm_sns_topic" {
-  description = "SNS topic to which beanstalk health alarms will be sent"
-  value = module.sns.topic_name
 }

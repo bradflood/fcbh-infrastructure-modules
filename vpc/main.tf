@@ -18,7 +18,7 @@ locals {
 }
 
 module "vpc" {
-  source     = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.14.0"
+  source     = "git::https://github.com/cloudposse/terraform-aws-vpc.git?ref=tags/0.16.1"
   namespace  = var.namespace
   stage      = var.stage
   name       = var.name
@@ -26,7 +26,7 @@ module "vpc" {
 }
 
 module "subnets" {
-  source              = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=tags/0.19.0"
+  source              = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=tags/0.29.0"
   availability_zones  = slice(data.aws_availability_zones.available.names, 0, local.max_availability_zones)
   namespace           = var.namespace
   stage               = var.stage

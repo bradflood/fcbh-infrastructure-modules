@@ -12,7 +12,7 @@ terraform {
 }
 
 module "cloudfront_s3_cdn" {
-  source    = "git::https://github.com/cloudposse/terraform-aws-cloudfront-s3-cdn.git?ref=tags/0.23.1"
+  source    = "git::https://github.com/cloudposse/terraform-aws-cloudfront-s3-cdn.git?ref=tags/0.31.0"
   namespace = var.namespace
   stage     = var.stage
   name      = var.name

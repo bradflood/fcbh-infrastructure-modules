@@ -17,7 +17,7 @@ data "aws_availability_zones" "all" {
 
 
 module "memcached" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-elasticache-memcached.git?ref=tags/0.3.0"
+  source                       = "git::https://github.com/cloudposse/terraform-aws-elasticache-memcached.git?ref=tags/0.6.0"
   namespace                    = var.namespace
   stage                        = var.stage
   name                         = "cache"

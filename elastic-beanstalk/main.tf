@@ -12,7 +12,7 @@ terraform {
 }
 
 module "elastic_beanstalk_application" {
-  source      = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-application.git?ref=tags/0.5.0"
+  source      = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-application.git?ref=tags/0.7.1"
   namespace   = var.namespace
   stage       = var.stage
   name        = var.name
@@ -22,7 +22,7 @@ module "elastic_beanstalk_application" {
 }
 
 module "elastic_beanstalk_environment" {
-  source     = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-environment.git?ref=tags/0.22.0"
+  source     = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-environment.git?ref=tags/0.31.0"
   namespace  = var.namespace
   stage      = var.stage
   name       = var.name
@@ -59,31 +59,31 @@ module "elastic_beanstalk_environment" {
   force_destroy                      = var.force_destroy # should be true ONLY for dev environments
 }
 
-module "sns" {
-  source      = "../sns"
-  aws_region  = var.aws_region
-  aws_profile = var.aws_profile
-  namespace   = var.namespace
-  stage       = var.stage
-  name        = var.name
-  topic       = "beanstalk-environment-health"
-}
+# module "sns" {
+#   source      = "../sns"
+#   aws_region  = var.aws_region
+#   aws_profile = var.aws_profile
+#   namespace   = var.namespace
+#   stage       = var.stage
+#   name        = var.name
+#   topic       = "beanstalk-environment-health"
+# }
 
 
-resource "aws_cloudwatch_metric_alarm" "beanstalk-health" {
-  alarm_name                = join("-", ["beanstalk-health", module.elastic_beanstalk_environment.name])
-  metric_name               = "EnvironmentHealth"
-  namespace                 = "AWS/ElasticBeanstalk"
-  comparison_operator       = "GreaterThanThreshold"
-  threshold                 = "0"
-  evaluation_periods        = "1"
-  period                    = "300"
-  statistic                 = "Maximum"
-  alarm_description         = "This metric alarms on bad Beanstalk environment health"
-  alarm_actions             = [module.sns.arn]
-  insufficient_data_actions = []
+# resource "aws_cloudwatch_metric_alarm" "beanstalk-health" {
+#   alarm_name                = join("-", ["beanstalk-health", module.elastic_beanstalk_environment.name])
+#   metric_name               = "EnvironmentHealth"
+#   namespace                 = "AWS/ElasticBeanstalk"
+#   comparison_operator       = "GreaterThanThreshold"
+#   threshold                 = "0"
+#   evaluation_periods        = "1"
+#   period                    = "300"
+#   statistic                 = "Maximum"
+#   alarm_description         = "This metric alarms on bad Beanstalk environment health"
+#   alarm_actions             = [module.sns.arn]
+#   insufficient_data_actions = []
 
-  dimensions = {
-    EnvironmentName = module.elastic_beanstalk_environment.name
-  }
-}
+#   dimensions = {
+#     EnvironmentName = module.elastic_beanstalk_environment.name
+#   }
+# }
