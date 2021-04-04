@@ -7,8 +7,8 @@ variable "alb_name" { }
 variable "certificate_arn" {
     description="at most one certificate can be directly attached to the alb"
  }
-variable "certificate_arn2" { 
-    description="use this if a second certificate is to be associated with the alb"
+ variable "additional_certificates" {
+  type = set(string)
 }
 variable "security_groups" {
   type = list(string)

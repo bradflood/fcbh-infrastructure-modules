@@ -39,9 +39,11 @@ resource "aws_lb_listener" "listener443" {
   }
 }
 
-resource "aws_lb_listener_certificate" "second_cert" {
+resource "aws_lb_listener_certificate" "additional_certs" {
+
+  for_each = var.additional_certificates
   listener_arn    = aws_lb_listener.listener443.arn
-  certificate_arn = var.certificate_arn2
+  certificate_arn = each.key
 }
 
 resource "aws_lb_listener" "listener80" {
