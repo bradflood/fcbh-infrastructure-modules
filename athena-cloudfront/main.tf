@@ -91,7 +91,7 @@ resource "null_resource" "cloudfront_logs_athena_table" {
 
   provisioner "local-exec" {
     environment = {
-      AWS_REGION = eu-west-2
+      AWS_REGION = us-west-2
     }
 
     command = <<-EOF

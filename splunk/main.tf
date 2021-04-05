@@ -2,7 +2,7 @@
 
 terraform {
   # Live modules pin exact Terraform version; generic modules let consumers pin the version.
-  required_version = ">= 0.13"
+  required_version = "~> 0.13"
 
   # Live modules pin exact provider version; generic modules let consumers pin the version.
   required_providers {
@@ -75,6 +75,13 @@ resource "aws_security_group" "splunk_sg" {
     to_port     = 3306
     cidr_blocks = var.peer_cidr_blocks
   }
+  egress {
+    description = "splunk license server"
+    protocol = "tcp"
+    from_port = 8089
+    to_port = 8089
+    cidr_blocks = var.splunk_license_server_cidr
+  }  
 }
 
 # allow web, but only from load balancer security group
@@ -99,21 +106,14 @@ resource "aws_security_group" "splunk_lb_sg" {
     to_port     = 443
     cidr_blocks = var.elb_access_cidr
   }
-  # this rule is arguably captured in aws_security_group_rule.lb_to_instance, isn't it?
-  # egress {
-  #   description = "LB to splunk search head on port 443"
-  #   protocol = "tcp"
-  #   from_port = 443
-  #   to_port = 443
-  #   security_groups = [aws_security_group.splunk_sg.id]
-  # }
-
   egress {
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
+    description = "LB to splunk search head on port 443"
+    protocol = "tcp"
+    from_port = 443
+    to_port = 443
+    security_groups = [aws_security_group.splunk_sg.id]
   }
+
 }
 
 
@@ -219,7 +219,9 @@ resource "aws_instance" "prod_search_head" {
 resource "aws_instance" "forwarder" {
   ami                    = var.splunk_ami
   instance_type          = var.forwarder_instance_type
+  iam_instance_profile   = var.forwarder_iam_instance_profile
   vpc_security_group_ids = [aws_security_group.splunk_sg.id]
+  ebs_optimized          = true
   key_name               = var.ssh_pub_key_name
   subnet_id              = var.splunk_subnet_id
 

@@ -55,7 +55,14 @@ variable "prod_search_head_instance_type" {
 variable "forwarder_instance_type" {
   description="instance type for forwarder"
 }
-
+variable "forwarder_iam_instance_profile" {
+  description="instance profile for forwarder"
+  default = ""
+}
+variable "splunk_license_server_cidr" {
+  description = "CIDR blocks for Splunk license server, egress from splunk security group"
+  type = list(string)
+}
 variable "peer_cidr_blocks" {
   description = "CIDR blocks which can access SQL port on splunk security group"
   type = list(string)
