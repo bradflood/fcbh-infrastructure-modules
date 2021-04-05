@@ -1,44 +1,44 @@
 #inspired by https://github.com/ChiefRiver/AWSSplunkInstance/blob/master/main.tf
 
 terraform {
-# Live modules pin exact Terraform version; generic modules let consumers pin the version.
-# The latest version of Terragrunt (v0.19.0 and above) requires Terraform 0.12.0 or above.
-   required_version = "~> 0.12"
+  # Live modules pin exact Terraform version; generic modules let consumers pin the version.
+  required_version = ">= 0.13"
 
-# Live modules pin exact provider version; generic modules let consumers pin the version.
-   required_providers {
-      aws = {
-         version = "~> 2.70"
-      }
+  # Live modules pin exact provider version; generic modules let consumers pin the version.
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 2.70"
     }
+  }
 }
 
 #Create the Instance SG
 resource "aws_security_group" "splunk_sg" {
-  name = "splunk_sg"
-  vpc_id      = var.vpc_id
+  name   = "splunk_sg"
+  vpc_id = var.vpc_id
 
   ingress {
-    description = "ingress from bastion sg"
-    protocol = "tcp"
-    from_port = 22
-    to_port = 22
+    description     = "ingress from bastion sg"
+    protocol        = "tcp"
+    from_port       = 22
+    to_port         = 22
     security_groups = [var.bastion_security_group_id]
   }
   ingress {
     description = "splunk index input"
-    protocol = "tcp"
-    from_port = 9997
-    to_port = 9997
-    self = true
-  } 
+    protocol    = "tcp"
+    from_port   = 9997
+    to_port     = 9997
+    self        = true
+  }
   ingress {
     description = "peer access to SQL"
-    protocol = "tcp"
-    from_port = 3306
-    to_port = 3306
+    protocol    = "tcp"
+    from_port   = 3306
+    to_port     = 3306
     cidr_blocks = var.peer_cidr_blocks
-  } 
+  }
   # results in cycle... before, this was added to this sg by virtue of it being added to the lb sg.
   # ingress {
   #   description = "ingress from ALB"
@@ -49,54 +49,54 @@ resource "aws_security_group" "splunk_sg" {
   # } 
   egress {
     description = "egress on port 80"
-    protocol = "tcp"
-    from_port = 80
-    to_port = 80
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     description = "egress on port 443"
-    protocol = "tcp"
-    from_port = 443
-    to_port = 443
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
-  }  
+  }
   egress {
     description = "splunk index input"
-    protocol = "tcp"
-    from_port = 9997
-    to_port = 9997
-    self = true
-  } 
+    protocol    = "tcp"
+    from_port   = 9997
+    to_port     = 9997
+    self        = true
+  }
   egress {
     description = "peer access to SQL"
-    protocol = "tcp"
-    from_port = 3306
-    to_port = 3306
+    protocol    = "tcp"
+    from_port   = 3306
+    to_port     = 3306
     cidr_blocks = var.peer_cidr_blocks
-  }   
+  }
 }
 
 # allow web, but only from load balancer security group
 resource "aws_security_group_rule" "lb_to_instance" {
-  from_port = 443
-  protocol = "tcp"
-  security_group_id = aws_security_group.splunk_sg.id
+  from_port                = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.splunk_sg.id
   source_security_group_id = aws_security_group.splunk_lb_sg.id
-  to_port = 443
-  type = "ingress"
+  to_port                  = 443
+  type                     = "ingress"
 }
 
 # Create the web LB SG. 
 resource "aws_security_group" "splunk_lb_sg" {
-  name = "splunk_lb_sg"
+  name   = "splunk_lb_sg"
   vpc_id = var.vpc_id
 
   ingress {
     description = "external to LB for select IPs"
-    protocol = "tcp"
-    from_port = 443
-    to_port = 443
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
     cidr_blocks = var.elb_access_cidr
   }
   # this rule is arguably captured in aws_security_group_rule.lb_to_instance, isn't it?
@@ -109,20 +109,20 @@ resource "aws_security_group" "splunk_lb_sg" {
   # }
 
   egress {
-    protocol = "tcp"
-    from_port = 443
-    to_port = 443
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 
 resource "aws_lb" "splunk_web" {
-  name = "splunk-alb"
-  internal = false 
-  load_balancer_type = "application"  
-  security_groups = [aws_security_group.splunk_lb_sg.id]
-  subnets = var.elb_subnets 
+  name               = "splunk-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.splunk_lb_sg.id]
+  subnets            = var.elb_subnets
 
   tags = {
     Name = "splunk-elb"
@@ -135,9 +135,9 @@ resource "aws_lb_target_group" "splunk_web" {
   vpc_id   = var.vpc_id
 
   health_check {
-    path = "/"
-    matcher = "200-399"  # anything in 2xx or 3xx... TODO. find a better path to check
-  }  
+    path    = "/"
+    matcher = "200-399" # anything in 2xx or 3xx... TODO. find a better path to check
+  }
 }
 
 resource "aws_lb_listener" "splunk_web" {
@@ -175,25 +175,25 @@ resource "aws_route53_record" "www" {
 ///////////////////////////////////
 #Splunk Enterprise AMI
 resource "aws_instance" "prod_search_head" {
-  ami = var.splunk_ami
-  instance_type = var.prod_search_head_instance_type
+  ami                    = var.splunk_ami
+  instance_type          = var.prod_search_head_instance_type
   vpc_security_group_ids = [aws_security_group.splunk_sg.id]
-  key_name = var.ssh_pub_key_name
-  subnet_id = var.splunk_subnet_id
-  
+  key_name               = var.ssh_pub_key_name
+  subnet_id              = var.splunk_subnet_id
+
   tags = {
     Name = "Splunk Prod Search Head"
-  }  
+  }
 
   ebs_block_device {
-    delete_on_termination = false 
+    delete_on_termination = false
     encrypted             = false
     device_name           = "/dev/sdf"
     iops                  = 9000
     snapshot_id           = "snap-xxx" # associated with "vol-01e8af24c7a98bdf4"
     volume_size           = 3000
     volume_type           = "gp2"
-  }  
+  }
 
   user_data = <<EOF
 		#! /bin/bash
@@ -217,11 +217,11 @@ resource "aws_instance" "prod_search_head" {
 }
 
 resource "aws_instance" "forwarder" {
-  ami = var.splunk_ami
-  instance_type = var.forwarder_instance_type
+  ami                    = var.splunk_ami
+  instance_type          = var.forwarder_instance_type
   vpc_security_group_ids = [aws_security_group.splunk_sg.id]
-  key_name = var.ssh_pub_key_name
-  subnet_id = var.splunk_subnet_id
+  key_name               = var.ssh_pub_key_name
+  subnet_id              = var.splunk_subnet_id
 
   tags = {
     Name = "Splunk Forwarder"

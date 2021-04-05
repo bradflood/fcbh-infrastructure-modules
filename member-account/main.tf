@@ -5,11 +5,15 @@ provider "aws" {
 }
 
 terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }  
   # The configuration for this backend will be filled in by Terragrunt
   backend "s3" {}
 
-  # The latest version of Terragrunt (v0.19.0 and above) requires Terraform 0.12.0 or above.
-  required_version = ">= 0.12.0"
+  required_version = ">= 0.13"
 }
 
 # 1. create organization member account
@@ -25,7 +29,7 @@ resource "aws_organizations_account" "account" {
 
   # There is no AWS Organizations API for reading role_name
   lifecycle {
-    ignore_changes = ["role_name"]
+    ignore_changes = [role_name]
   }
 }
 

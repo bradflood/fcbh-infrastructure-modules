@@ -33,13 +33,18 @@ variable "instance_type" {
 }
 variable "engine" {
   type        = string
-  default     = "aurora"
+  default     = "aurora-mysql"
   description = "The name of the database engine to be used for this DB cluster. Valid values: `aurora`, `aurora-mysql`, `aurora-postgresql`"
 }
 variable "cluster_family" {
   type        = string
-  default     = "aurora5.6"
+  default     = "aurora-mysql5.7"
   description = "The family of the DB cluster parameter group"
+}
+variable "cluster_size" {
+  type        = number
+  default     = 2
+  description = "Number of DB instances to create in the cluster"
 }
 variable "engine_mode" {
   type        = string
@@ -116,4 +121,9 @@ variable "performance_insights_kms_key_id" {
   type        = string
   default     = ""
   description = "The ARN for the KMS key to encrypt Performance Insights data. When specifying `performance_insights_kms_key_id`, `performance_insights_enabled` needs to be set to true"
+}
+variable "deletion_protection" {
+  type        = bool
+  description = "If the DB instance should have deletion protection enabled"
+  default     = false
 }

@@ -1,18 +1,18 @@
 terraform {
   # Live modules pin exact Terraform version; generic modules let consumers pin the version.
-  # The latest version of Terragrunt (v0.19.0 and above) requires Terraform 0.12.0 or above.
-  required_version = "~> 0.12"
+   required_version = ">= 0.13"
 
   # Live modules pin exact provider version; generic modules let consumers pin the version.
   required_providers {
     aws = {
+      source  = "hashicorp/aws"
       version = "~> 2.70"
     }
   }
 }
 
 module "elastic_beanstalk_application" {
-  source      = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-application.git?ref=tags/0.7.1"
+  source      = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-application.git?ref=tags/0.8.0"
   namespace   = var.namespace
   stage       = var.stage
   name        = var.name
@@ -22,7 +22,7 @@ module "elastic_beanstalk_application" {
 }
 
 module "elastic_beanstalk_environment" {
-  source     = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-environment.git?ref=tags/0.31.0"
+  source     = "git::https://github.com/cloudposse/terraform-aws-elastic-beanstalk-environment.git?ref=tags/0.38.0"
   namespace  = var.namespace
   stage      = var.stage
   name       = var.name
@@ -55,6 +55,7 @@ module "elastic_beanstalk_environment" {
   logs_retention_in_days             = var.logs_retention_in_days
   rolling_update_type                = var.rolling_update_type
   solution_stack_name                = var.solution_stack_name
+  prefer_legacy_service_policy       = false
   keypair                            = var.keypair
   force_destroy                      = var.force_destroy # should be true ONLY for dev environments
 }

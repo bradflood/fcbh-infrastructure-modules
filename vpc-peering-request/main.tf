@@ -2,12 +2,12 @@
 
 terraform {
   # Live modules pin exact Terraform version; generic modules let consumers pin the version.
-  # The latest version of Terragrunt (v0.19.0 and above) requires Terraform 0.12.0 or above.
-  required_version = "~> 0.12"
+  required_version = ">= 0.13"
 
   # Live modules pin exact provider version; generic modules let consumers pin the version.
   required_providers {
     aws = {
+      source  = "hashicorp/aws"
       version = "~> 2.70"
     }
   }
@@ -34,5 +34,5 @@ data "aws_route_table" "selected" {
 resource "aws_route" "requester_route" {
   route_table_id            = data.aws_route_table.selected.id
   destination_cidr_block    = var.accepter_cidr_block
-  vpc_peering_connection_id =    aws_vpc_peering_connection.requester_connection.id
+  vpc_peering_connection_id = aws_vpc_peering_connection.requester_connection.id
 }

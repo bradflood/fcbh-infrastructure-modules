@@ -1,14 +1,14 @@
 terraform {
-# Live modules pin exact Terraform version; generic modules let consumers pin the version.
-# The latest version of Terragrunt (v0.19.0 and above) requires Terraform 0.12.0 or above.
-   required_version = "~> 0.12"
+  # Live modules pin exact Terraform version; generic modules let consumers pin the version.
+  required_version = ">= 0.13"
 
-# Live modules pin exact provider version; generic modules let consumers pin the version.
-   required_providers {
-      aws = {
-         version = "~> 2.70"
-      }
+  # Live modules pin exact provider version; generic modules let consumers pin the version.
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 2.70"
     }
+  }
 }
 
 data "aws_caller_identity" "default" {
@@ -18,7 +18,7 @@ data "aws_region" "default" {
 }
 
 module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.16.0"
+  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.17.0"
   enabled    = var.enabled
   namespace  = var.namespace
   name       = var.name

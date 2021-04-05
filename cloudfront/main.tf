@@ -1,18 +1,18 @@
 terraform {
   # Live modules pin exact Terraform version; generic modules let consumers pin the version.
-  # The latest version of Terragrunt (v0.19.0 and above) requires Terraform 0.12.0 or above.
-  required_version = "~> 0.12"
+  required_version = ">= 0.13"
 
   # Live modules pin exact provider version; generic modules let consumers pin the version.
   required_providers {
     aws = {
+      source  = "hashicorp/aws"
       version = "~> 2.70"
     }
   }
 }
 
 module "cloudfront_s3_cdn" {
-  source    = "git::https://github.com/cloudposse/terraform-aws-cloudfront-s3-cdn.git?ref=tags/0.31.0"
+  source    = "git::https://github.com/cloudposse/terraform-aws-cloudfront-s3-cdn.git?ref=tags/0.32.0"
   namespace = var.namespace
   stage     = var.stage
   name      = var.name

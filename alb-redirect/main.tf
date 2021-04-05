@@ -1,12 +1,12 @@
 
 terraform {
   # Live modules pin exact Terraform version; generic modules let consumers pin the version.
-  # The latest version of Terragrunt (v0.19.0 and above) requires Terraform 0.12.0 or above.
-  required_version = "~> 0.12"
+  required_version = ">= 0.13"
 
   # Live modules pin exact provider version; generic modules let consumers pin the version.
   required_providers {
     aws = {
+      source  = "hashicorp/aws"
       version = "~> 2.70"
     }
   }
@@ -16,12 +16,12 @@ resource "aws_lb" "myalb" {
   name               = var.alb_name
   internal           = false
   load_balancer_type = "application"
-#   security_groups    = var.security_groups
-  subnets            = var.subnets
+  #   security_groups    = var.security_groups
+  subnets = var.subnets
 }
 
 resource "aws_lb_listener" "listener443" {
-  load_balancer_arn =   aws_lb.myalb.arn
+  load_balancer_arn = aws_lb.myalb.arn
   port              = "443"
   protocol          = "HTTPS"
   certificate_arn   = var.certificate_arn
@@ -32,7 +32,7 @@ resource "aws_lb_listener" "listener443" {
     redirect {
       host        = var.redirect_to_host
       port        = var.redirect_to_port
-      path        = var.redirect_to_path      
+      path        = var.redirect_to_path
       protocol    = "HTTPS"
       status_code = "HTTP_301"
     }
@@ -41,13 +41,13 @@ resource "aws_lb_listener" "listener443" {
 
 resource "aws_lb_listener_certificate" "additional_certs" {
 
-  for_each = var.additional_certificates
+  for_each        = var.additional_certificates
   listener_arn    = aws_lb_listener.listener443.arn
   certificate_arn = each.key
 }
 
 resource "aws_lb_listener" "listener80" {
-  load_balancer_arn =   aws_lb.myalb.arn
+  load_balancer_arn = aws_lb.myalb.arn
   port              = "80"
   protocol          = "HTTP"
 
@@ -57,7 +57,7 @@ resource "aws_lb_listener" "listener80" {
     redirect {
       host        = var.redirect_to_host
       port        = var.redirect_to_port
-      path        = var.redirect_to_path      
+      path        = var.redirect_to_path
       protocol    = "HTTPS"
       status_code = "HTTP_301"
     }
