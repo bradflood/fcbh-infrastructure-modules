@@ -28,6 +28,9 @@ module "label" {
   tags       = var.tags
 }
 
+# June 14,2021, note: https://haydnjmorris.medium.com/solving-permissions-error-with-aws-codepipeline-c93cfc000285
+
+
 resource "aws_s3_bucket" "default" {
   count         = var.enabled ? 1 : 0
   bucket        = module.label.id

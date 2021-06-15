@@ -23,6 +23,7 @@ data "aws_ami" "linux2" {
 
 module "security_group" {
   source = "terraform-aws-modules/security-group/aws"
+  version = "4.2.0"  
 
   vpc_id = var.vpc_id
   name   = var.security_group_name
@@ -48,9 +49,10 @@ EOF
 
 module "host" {
   source = "terraform-aws-modules/ec2-instance/aws"
+  version = "2.16.0"    
 
   name                        = var.host_name
-  vpc_security_group_ids      = [module.security_group.this_security_group_id]
+  vpc_security_group_ids      = [module.security_group.security_group_id]
   ami                         = data.aws_ami.linux2.id
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
