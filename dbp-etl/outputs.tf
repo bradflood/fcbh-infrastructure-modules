@@ -1,39 +1,16 @@
-output "aws_region" {
-  value = data.aws_region.current.name
-}
-
-output "ecs_subnets" {
-  value = jsonencode(var.ecs_subnets)
-}
-
-output "ecs_security_group" {
-  value = var.ecs_security_group
-}
-
-output "cognito_domain" {
-  value = "${aws_cognito_user_pool_domain.cognito.domain}.auth.${data.aws_region.current.name}.amazoncognito.com"
-}
-
-output "cognito_identity_pool_id" {
-  value = aws_cognito_identity_pool.cognito.id
-}
-
-output "cognito_user_pool_client_id" {
-  value = aws_cognito_user_pool_client.cognito.id
-}
-
-output "cognito_user_pool_id" {
-  value = aws_cognito_user_pool.cognito.id
-}
-
-output "upload_bucket" {
-  value = aws_s3_bucket.s3_upload.id
-}
-
-output "artifacts_bucket" {
-  value = var.s3_artifacts_bucket
-}
-
-output "cloudfront_domain_name" {
-  value = aws_cloudfront_distribution.cloudfront.domain_name
-}
+output "cloudfront_domain_name" { value = aws_cloudfront_distribution.cloudfront.domain_name }
+output "distribution_id" { value = aws_cloudfront_distribution.cloudfront.id }
+output "ecr_url" { value = aws_ecr_repository.main.repository_url }
+output "origin_bucket" { value = aws_s3_bucket.cloudfront.id }
+output "ui_artifacts_bucket" { value = var.s3_artifacts_bucket }
+output "ui_aws_region" { value = data.aws_region.current.name }
+output "ui_cognito_domain" { value = "${aws_cognito_user_pool_domain.cognito.domain}.auth.${data.aws_region.current.name}.amazoncognito.com" }
+output "ui_cognito_identity_pool_id" { value = aws_cognito_identity_pool.cognito.id }
+output "ui_cognito_user_pool_client_id" { value = aws_cognito_user_pool_client.cognito.id }
+output "ui_cognito_user_pool_id" { value = aws_cognito_user_pool.cognito.id }
+output "ui_ecs_cluster" { value = aws_ecs_cluster.main.name }
+output "ui_ecs_security_group" { value = var.ecs_security_group }
+output "ui_ecs_subnets" { value = jsonencode(var.ecs_subnets) }
+output "ui_ecs_task" { value = aws_ecs_task_definition.main.family }
+output "ui_upload_bucket" { value = aws_s3_bucket.s3_upload.id }
+output "ui_validate_lambda" { value = aws_lambda_function.lambda_validate.function_name }

@@ -1,13 +1,21 @@
 resource "aws_iam_role" "iam_task" {
+  name               = "dbp-etl-${var.environment}-task"
   assume_role_policy = data.aws_iam_policy_document.iam_assume_ecs.json
 }
 
 resource "aws_iam_role" "iam_execution" {
+  name               = "dbp-etl-${var.environment}-execution"
   assume_role_policy = data.aws_iam_policy_document.iam_assume_ecs.json
 }
 
 resource "aws_iam_role" "iam_authenticated" {
+  name               = "dbp-etl-${var.environment}-authenticated"
   assume_role_policy = data.aws_iam_policy_document.iam_assume_authenticated.json
+}
+
+resource "aws_iam_role" "iam_lambda" {
+  name               = "dbp-etl-${var.environment}-lambda"
+  assume_role_policy = data.aws_iam_policy_document.iam_assume_lambda.json
 }
 
 data "aws_iam_policy_document" "iam_assume_ecs" {
@@ -16,6 +24,13 @@ data "aws_iam_policy_document" "iam_assume_ecs" {
     principals {
       type        = "Service"
       identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::078432969830:user/ghopper"]
     }
   }
 }
@@ -40,27 +55,35 @@ data "aws_iam_policy_document" "iam_assume_authenticated" {
   }
 }
 
+data "aws_iam_policy_document" "iam_assume_lambda" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role_policy_attachment" "iam_task" {
   role       = aws_iam_role.iam_task.name
   policy_arn = aws_iam_policy.iam_task.arn
 }
 
+resource "aws_iam_role_policy_attachment" "iam_task_elastic_transcoder" {
+  role       = aws_iam_role.iam_task.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonElasticTranscoder_JobsSubmitter"
+}
+
 resource "aws_iam_policy" "iam_task" {
+  name   = "dbp-etl-${var.environment}-task"
   policy = data.aws_iam_policy_document.iam_task.json
 }
 
 data "aws_iam_policy_document" "iam_task" {
   statement {
-    actions   = ["s3:ListBucket"]
-    resources = [aws_s3_bucket.s3_upload.arn]
-  }
-
-  statement {
-    actions = ["s3:*Object"]
-    resources = [
-      "${aws_s3_bucket.s3_upload.arn}/*",
-      "arn:aws:s3:::${var.s3_artifacts_bucket}/*"
-    ]
+    actions   = ["sts:AssumeRole"]
+    resources = [var.assume_role_arn]
   }
 }
 
@@ -70,6 +93,7 @@ resource "aws_iam_role_policy_attachment" "iam_execution" {
 }
 
 resource "aws_iam_policy" "iam_execution" {
+  name   = "dbp-etl-${var.environment}-execution"
   policy = data.aws_iam_policy_document.iam_execution.json
 }
 
@@ -105,6 +129,7 @@ resource "aws_iam_role_policy_attachment" "iam_authenticated" {
 }
 
 resource "aws_iam_policy" "iam_authenticated" {
+  name   = "dbp-etl-${var.environment}-authenticated"
   policy = data.aws_iam_policy_document.iam_authenticated.json
 }
 
@@ -135,7 +160,12 @@ data "aws_iam_policy_document" "iam_authenticated" {
   }
 
   statement {
-    actions   = ["s3:PutObject", "s3:PutObjectAcl"]
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.s3_upload.arn]
+  }
+
+  statement {
+    actions   = ["s3:GetObject", "s3:PutObject"]
     resources = ["${aws_s3_bucket.s3_upload.arn}/*"]
   }
 
@@ -147,5 +177,27 @@ data "aws_iam_policy_document" "iam_authenticated" {
   statement {
     actions   = ["s3:GetObject", "s3:PutObject"]
     resources = ["arn:aws:s3:::${var.s3_artifacts_bucket}/*"]
+  }
+
+  statement {
+    actions   = ["lambda:InvokeFunction"]
+    resources = [aws_lambda_function.lambda_validate.arn]
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "iam_lambda" {
+  role       = aws_iam_role.iam_lambda.name
+  policy_arn = aws_iam_policy.iam_lambda.arn
+}
+
+resource "aws_iam_policy" "iam_lambda" {
+  name   = "dbp-etl-${var.environment}-lambda"
+  policy = data.aws_iam_policy_document.iam_lambda.json
+}
+
+data "aws_iam_policy_document" "iam_lambda" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.s3_upload.arn}/*"]
   }
 }

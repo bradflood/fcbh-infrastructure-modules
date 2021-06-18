@@ -2,6 +2,7 @@ resource "aws_cloudfront_distribution" "cloudfront" {
   enabled             = true
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
+  aliases             = compact([var.alias])
 
   origin {
     domain_name = aws_s3_bucket.cloudfront.bucket_regional_domain_name
@@ -19,7 +20,9 @@ resource "aws_cloudfront_distribution" "cloudfront" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = var.acm_certificate_arn == null ? true : false
+    ssl_support_method             = var.acm_certificate_arn == null ? "" : "sni-only"
+    acm_certificate_arn            = var.acm_certificate_arn
   }
 
   default_cache_behavior {
@@ -41,7 +44,7 @@ resource "aws_cloudfront_distribution" "cloudfront" {
 }
 
 resource "aws_s3_bucket" "cloudfront" {
-  bucket = "dbp-etl-origin-${random_string.random.result}"
+  bucket = "dbp-etl-origin-${var.environment}-${random_string.random.result}"
 }
 
 resource "aws_s3_bucket_policy" "cloudfront" {

@@ -1,3 +1,7 @@
+variable "environment" {
+  type = string
+}
+
 variable "vpc_id" {
   type = string
 }
@@ -51,4 +55,18 @@ variable "s3_vid_bucket" {
 variable "s3_artifacts_bucket" {
   type    = string
   default = "dbp-etl-artifacts"
+}
+
+variable "acm_certificate_arn" {
+  type    = string
+  default = null
+}
+
+variable "alias" {
+  type    = string
+  default = null
+}
+
+variable "assume_role_arn" {
+  type = string
 }

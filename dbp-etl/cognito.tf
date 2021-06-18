@@ -15,14 +15,16 @@ resource "aws_cognito_user_pool_client" "cognito" {
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["openid"]
   allowed_oauth_flows_user_pool_client = true
-  callback_urls = [
+  callback_urls = compact([
     "http://localhost:8080",
     "https://${aws_cloudfront_distribution.cloudfront.domain_name}",
-  ]
-  logout_urls = [
+    (var.alias != null ? "https://${var.alias}" : null),
+  ])
+  logout_urls = compact([
     "http://localhost:8080",
     "https://${aws_cloudfront_distribution.cloudfront.domain_name}",
-  ]
+    (var.alias != null ? "https://${var.alias}" : null),
+  ])
 }
 
 resource "aws_cognito_user_pool_domain" "cognito" {
